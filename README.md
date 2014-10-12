@@ -1,4 +1,4 @@
-video-browser
+Python Utility of misc
 =============
 
-ZeroVM video browser demo application
+My existing python scripts and to be composed scripts are targetted to organize here.
