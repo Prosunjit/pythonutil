@@ -12,26 +12,34 @@ class Keystone:
     host_ip="192.168.0.101"   
     username="demo"
     password="nova"
+    tenant_name="demo"
     
     @staticmethod
-    def set_config(keystone_ip=None, username=None, password=None):
+    def set_config(keystone_ip=None, username=None, password=None, tenant=None):
         if keystone_ip != None:
             Keystone.host_ip = keystone_ip
         if username:
             Keystone.username = username
         if password:
             Keystone.password = password
-            
+	if tenant:
+	    Keystone.tenant = tenant
+    
+
+    '''
+	return a scoped token for the given tenant.
+    '''
     @staticmethod
     def get_token():
         '''change USERNAME, PASSWORD from the following credential'''
         pass_cred = '{ "auth":{ \
+			    "tenantName":"%s",\
                             "passwordCredentials": { \
                                 "username": "%s",\
                                 "password": "%s" \
                             }\
                          } \
-                     }'%(Keystone.username, Keystone.password)
+                     }'%(Keystone.tenant_name,Keystone.username, Keystone.password)
         headers={"Content-Type":"application/json"}
         endpoint="http://{}:5000/v2.0".format(Keystone.host_ip)
         url = "{}/{}".format(endpoint,"tokens")
@@ -39,6 +47,9 @@ class Keystone:
         return response()['access']['token']['id']
         
         
+    '''	
+	given a tenant name, it returns id of the tenant.
+    '''
     @staticmethod
     def get_tenant_id(name=None):
         endpoint="http://{}:5000/v2.0".format(Keystone.host_ip)
@@ -49,7 +60,10 @@ class Keystone:
         headers = {'X-Auth-Token':token, 'name':tenant_name}    
         response =  URL.submit(URL=url, METHOD="GET", HEADERS=headers)
         return [ tenant['id'] for tenant in response()['tenants'] if tenant['name']==tenant_name ][0]
-        
+    
+    '''
+	return the endpoint for swift. It assumes swift API version 1.0
+    '''
     @staticmethod
     def storage_url(tenant=None):
         swift_endpoint="http://{}:8080/v1/AUTH_".format(Keystone.host_ip)
