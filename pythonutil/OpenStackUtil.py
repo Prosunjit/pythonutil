@@ -40,10 +40,10 @@ class Keystone:
         
         
     @staticmethod
-    def get_tenant_id():
+    def get_tenant_id(name=None):
         endpoint="http://{}:5000/v2.0".format(Keystone.host_ip)
         api_endpoint = "tenants"
-        tenant_name="demo"
+        tenant_name= name or "demo"
         token= Keystone.get_token()   
         url= "{}/{}".format(endpoint, api_endpoint)
         headers = {'X-Auth-Token':token, 'name':tenant_name}    
@@ -51,17 +51,18 @@ class Keystone:
         return [ tenant['id'] for tenant in response()['tenants'] if tenant['name']==tenant_name ][0]
         
     @staticmethod
-    def storage_url():
+    def storage_url(tenant=None):
         swift_endpoint="http://{}:8080/v1/AUTH_".format(Keystone.host_ip)
-        tenant_id = Keystone.get_tenant_id()
+	tenant_name = tenant or "demo"
+        tenant_id = Keystone.get_tenant_id(tenant_name)
         return swift_endpoint + tenant_id
 
 def test_get_token():
     print Keystone.get_token()
 def test_get_tenant_id():
-    print Keystone.get_tenant_id()
+    print Keystone.get_tenant_id(name="demo")
 def test_storage_url():
-    print Keystone.storage_url()
+    print Keystone.storage_url(tenant="demo")
 
 '''submit a request to a remote url and get response from it'''
 class URL:
